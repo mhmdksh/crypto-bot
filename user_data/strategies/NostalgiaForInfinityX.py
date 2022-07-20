@@ -115,7 +115,7 @@ class NostalgiaForInfinityX(IStrategy):
     INTERFACE_VERSION = 3
 
     def version(self) -> str:
-        return "v11.0.1345"
+        return "v11.0.1347"
 
 
     # ROI table:
@@ -13336,9 +13336,9 @@ class NostalgiaForInfinityX(IStrategy):
                         | ((dataframe['ema_26'] - dataframe['ema_12']) > (dataframe['open'] * 0.02))
                     )
                     item_buy_logic.append(
-                        (dataframe['cmf'] > -0.3)
+                        (dataframe['cmf'] > -0.2)
                         | (dataframe['mfi'] > 50.0)
-                        | (dataframe['cti_1h'] < 0.8)
+                        | (dataframe['cti_1h'] < 0.5)
                         | (dataframe['rsi_14_1h'] < 50.0)
                         | (dataframe['r_14_1h'] < -75.0)
                         | (dataframe['tpct_change_144'] < 0.16)
@@ -16854,6 +16854,10 @@ class NostalgiaForInfinityX(IStrategy):
     def confirm_trade_entry(self, pair: str, order_type: str, amount: float, rate: float,
                             time_in_force: str, current_time: datetime, entry_tag: Optional[str],
                             side: str, **kwargs) -> bool:
+        # allow force entries
+        if (entry_tag == 'force_entry'):
+            return True
+
         dataframe, _ = self.dp.get_analyzed_dataframe(pair, self.timeframe)
 
         if(len(dataframe) < 1):
