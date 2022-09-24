@@ -117,7 +117,7 @@ class NostalgiaForInfinityX(IStrategy):
     INTERFACE_VERSION = 3
 
     def version(self) -> str:
-        return "v11.2.198"
+        return "v11.2.202"
 
 
     # ROI table:
@@ -2954,10 +2954,18 @@ class NostalgiaForInfinityX(IStrategy):
         else:
             # BTC/ETH stake
             if (
-                (current_profit < [-0.1, -0.1, -0.35][stop_index])
+                (current_profit < [-0.25, -0.25, -0.35][stop_index])
                 and (current_time - timedelta(hours=1) > trade.open_date_utc)
                 # temporary
                 and (trade.open_date_utc.replace(tzinfo=None) > datetime(2022, 6, 13) or is_backtest)
+            ):
+                return True, 'sell_stoploss_stop_2'
+
+            if (
+                (current_profit < [-0.1, -0.1, -0.35][stop_index])
+                and (current_time - timedelta(hours=1) > trade.open_date_utc)
+                # temporary
+                and (trade.open_date_utc.replace(tzinfo=None) > datetime(2022, 9, 21) or is_backtest)
             ):
                 return True, 'sell_stoploss_stop_2'
 
@@ -11178,9 +11186,9 @@ class NostalgiaForInfinityX(IStrategy):
                     item_buy_logic.append(
                         (dataframe['btc_not_downtrend_1h'] == True)
                         | (dataframe['rsi_14'] < 22.0)
-                        | (dataframe['cti'] < -0.9)
+                        | (dataframe['cti'] < -0.95)
                         | (dataframe['r_14'] < -95.0)
-                        | (dataframe['rsi_14_1h'] < 30.0)
+                        | (dataframe['rsi_14_1h'] < 20.0)
                         | (dataframe['tpct_change_144'] < 0.16)
                         | (dataframe['close_max_48'] < (dataframe['close'] * 1.1))
                         |
@@ -12253,7 +12261,11 @@ class NostalgiaForInfinityX(IStrategy):
                         | (dataframe['ema_200'] > (dataframe['ema_200'].shift(12) * 1.01))
                         | (dataframe['close'] < dataframe['bb20_2_low'] * 0.98)
                         | ((dataframe['ema_26'] - dataframe['ema_12']) > (dataframe['open'] * 0.04))
-                        | ((dataframe['ema_26_15m'] - dataframe['ema_12_15m']) > (dataframe['open_15m'] * 0.03))
+                        |
+                        (
+                            ((dataframe['ema_26_15m'] - dataframe['ema_12_15m']) > (dataframe['open_15m'] * 0.03))
+                            & (dataframe['tpct_change_144'] < 0.3)
+                        )
                     )
                     item_buy_logic.append(
                         (dataframe['cmf'] > 0.0)
